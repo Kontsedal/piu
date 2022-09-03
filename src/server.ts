@@ -4,12 +4,12 @@ import * as context from "./context";
 
 export type Middleware = (next: () => unknown) => unknown;
 
-export type CreateListenerParams = {
+export type CreateServerParams = {
   onError?: (error: Error) => unknown;
   httpServerOptions?: http.ServerOptions;
 };
 
-export function createListener(options?: CreateListenerParams) {
+export function createServer(options?: CreateServerParams) {
   const middlewares: Middleware[] = [];
   const httpServer = http.createServer(
     options?.httpServerOptions ?? {},
@@ -32,7 +32,7 @@ function handleRequest({
 }: {
   req: http.IncomingMessage;
   res: http.ServerResponse;
-  options?: CreateListenerParams;
+  options?: CreateServerParams;
   middlewares: Middleware[];
 }) {
   context.runWithContext(async () => {

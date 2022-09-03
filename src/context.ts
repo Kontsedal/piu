@@ -1,4 +1,4 @@
-import { AsyncLocalStorage } from 'async_hooks';
+import { AsyncLocalStorage } from "async_hooks";
 
 export const asyncStorage = new AsyncLocalStorage<Map<Symbol, unknown>>();
 
@@ -13,38 +13,38 @@ export const getContext = () => {
 
 export const setContextValue = (key: Symbol, value: unknown) => {
   const context = getContext();
-  context.set(key, value);
+  context?.set(key, value);
 };
 
 export const getContextValue = <Value extends any>(key: Symbol) => {
   const context = getContext();
-  return context.get(key) as Value | void;
+  return context?.get(key) as Value | void;
 };
 
 export const [getStatusCode, setStatusCode] = createGetterSetter<number>(
-  Symbol('responseStatusCode')
+  Symbol("responseStatusCode")
 );
 export const [getRequestId, setRequestId] = createGetterSetter<string>(
-  Symbol('requestId')
+  Symbol("requestId")
 );
 export const [getResponseBody, setResponseBody] = createGetterSetter<any>(
-  Symbol('responseBody')
+  Symbol("responseBody")
 );
 export const [getResponseHeaders, setResponseHeaders] = createGetterSetter<
   Map<string, string | string[]>
->(Symbol('responseHeaders'), new Map());
+>(Symbol("responseHeaders"), new Map());
 export const setResponseHeader = (key: string, value: string | string[]) => {
   const headers = getResponseHeaders();
-  headers.set(key, value);
+  headers?.set(key, value);
 };
 
 export const respondJson = (
   body: Record<string, unknown>,
-  statusCode = 200
+  statusCode?: number
 ) => {
   setResponseBody(JSON.stringify(body));
-  setStatusCode(statusCode);
-  setResponseHeader('Content-Type', 'application/json');
+  typeof statusCode == "number" && setStatusCode(statusCode);
+  setResponseHeader("Content-Type", "application/json");
 };
 export function createGetterSetter<Value extends any>(
   key: Symbol,

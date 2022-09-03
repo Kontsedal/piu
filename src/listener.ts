@@ -39,10 +39,12 @@ function handleRequest({
     context.setRequestId(crypto.randomUUID());
     try {
       try {
-        return executeMiddlewares(middlewares);
+        await executeMiddlewares(middlewares);
       } catch (error: any) {
         if (typeof options?.onError === "function") {
           await options?.onError(error);
+        } else {
+          throw error;
         }
       }
     } catch (error) {
@@ -50,7 +52,9 @@ function handleRequest({
         context.setStatusCode(500);
       }
       if (!context.getResponseBody()) {
-        context.setResponseBody(error);
+        context.respondJson({
+          message: (error as Error).message || "Internal server error",
+        });
       }
     } finally {
       if (!context.getResponseBody() && !context.getStatusCode()) {

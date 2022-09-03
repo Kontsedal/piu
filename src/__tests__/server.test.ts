@@ -1,6 +1,6 @@
-import { createServer } from "./server";
+import { createServer } from "../server";
 import request from "supertest";
-import { respondJson } from "./context";
+import { respondJson } from "../context";
 
 describe("server", () => {
   it("should respond 404 with no middlewares", async () => {

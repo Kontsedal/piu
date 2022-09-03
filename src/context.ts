@@ -57,7 +57,7 @@ export function createGetterSetter<Value extends any>(
   defaultValue?: Value
 ) {
   return [
-    () => getContextValue<Value>(key) || defaultValue,
-    (value: Value) => setContextValue(key, value),
+    () => (getContextValue<Value>(key) || defaultValue) as Value,
+    (value: Value) => setContextValue(key, value) as Value,
   ] as const;
 }

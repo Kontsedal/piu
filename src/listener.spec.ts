@@ -31,4 +31,19 @@ describe("listener", () => {
     expect(response.statusCode).toBe(500);
     expect(response.body).toMatchObject({ message: error });
   });
+
+  it("should respect a custom error handler", async () => {
+    const customError = { error: "Custom error" };
+    const listener = createListener({
+      onError: (error) => {
+        respondJson({ error: "Custom error" }, 501);
+      },
+    });
+    listener.use(() => {
+      throw new Error("???why");
+    });
+    const response = await request(listener.httpServer).get("/").send();
+    expect(response.statusCode).toBe(501);
+    expect(response.body).toMatchObject(customError);
+  });
 });

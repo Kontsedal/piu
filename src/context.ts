@@ -1,4 +1,5 @@
 import { AsyncLocalStorage } from "async_hooks";
+import * as http from "http";
 
 export const asyncStorage = new AsyncLocalStorage<Map<Symbol, unknown>>();
 
@@ -21,6 +22,11 @@ export const getContextValue = <Value extends any>(key: Symbol) => {
   return context?.get(key) as Value | void;
 };
 
+export const [getRequestObject, setRequestObject] =
+  createGetterSetter<http.IncomingMessage>(Symbol("request"));
+
+export const [getResponseObject, setResponseObject] =
+  createGetterSetter<http.ServerResponse>(Symbol("response"));
 export const [getStatusCode, setStatusCode] = createGetterSetter<number>(
   Symbol("responseStatusCode")
 );

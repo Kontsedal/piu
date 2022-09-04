@@ -1,7 +1,7 @@
 import { createRouter, routerContext } from "../router";
 import { createServer } from "../server";
 import request from "supertest";
-import { context, respondJson } from "../context";
+import { context } from "../context";
 
 describe("router", () => {
   it("should support simple routes", async () => {
@@ -14,6 +14,29 @@ describe("router", () => {
     await request(server.httpServer).get("/api/user").send();
 
     expect(handler).toHaveBeenCalled();
+  });
+  it("should support simple root url", async () => {
+    const server = createServer();
+    const router = createRouter();
+    router.get("/", () => {
+      context.respondJson({ success: true });
+    });
+    server.use(router.middleware());
+    const response = await request(server.httpServer).get("/").send();
+
+    expect(response.body).toMatchObject({ success: true });
+  });
+
+  it("should support parametric root url", async () => {
+    const server = createServer();
+    const router = createRouter();
+    router.get("/:id", () => {
+      context.respondJson({ success: true });
+    });
+    server.use(router.middleware());
+    const response = await request(server.httpServer).get("/44").send();
+
+    expect(response.body).toMatchObject({ success: true });
   });
   it("should support parametric routes", async () => {
     const handler = jest.fn();

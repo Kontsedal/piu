@@ -23,22 +23,23 @@ export const getContextValue = <Value extends any>(key: Symbol) => {
 };
 
 export const [getRequestObject, setRequestObject] =
-  createGetterSetter<http.IncomingMessage>(Symbol("request"));
+  createContextGetterSetter<http.IncomingMessage>(Symbol("request"));
 
 export const [getResponseObject, setResponseObject] =
-  createGetterSetter<http.ServerResponse>(Symbol("response"));
-export const [getStatusCode, setStatusCode] = createGetterSetter<number>(
+  createContextGetterSetter<http.ServerResponse>(Symbol("response"));
+export const [getStatusCode, setStatusCode] = createContextGetterSetter<number>(
   Symbol("responseStatusCode")
 );
-export const [getRequestId, setRequestId] = createGetterSetter<string>(
+export const [getRequestId, setRequestId] = createContextGetterSetter<string>(
   Symbol("requestId")
 );
-export const [getResponseBody, setResponseBody] = createGetterSetter<any>(
-  Symbol("responseBody")
-);
-export const [getResponseHeaders, setResponseHeaders] = createGetterSetter<
-  Map<string, string | string[]>
->(Symbol("responseHeaders"), new Map());
+export const [getResponseBody, setResponseBody] =
+  createContextGetterSetter<any>(Symbol("responseBody"));
+export const [getResponseHeaders, setResponseHeaders] =
+  createContextGetterSetter<Map<string, string | string[]>>(
+    Symbol("responseHeaders"),
+    new Map()
+  );
 export const setResponseHeader = (key: string, value: string | string[]) => {
   const headers = getResponseHeaders();
   headers?.set(key, value);
@@ -52,7 +53,7 @@ export const respondJson = (
   typeof statusCode == "number" && setStatusCode(statusCode);
   setResponseHeader("Content-Type", "application/json");
 };
-export function createGetterSetter<Value extends any>(
+export function createContextGetterSetter<Value extends any>(
   key: Symbol,
   defaultValue?: Value
 ) {
@@ -61,3 +62,24 @@ export function createGetterSetter<Value extends any>(
     (value: Value) => setContextValue(key, value) as Value,
   ] as const;
 }
+
+export const context = {
+  runWithContext,
+  getContext,
+  getContextValue,
+  getRequestObject,
+  setRequestObject,
+  getResponseObject,
+  setResponseObject,
+  getStatusCode,
+  setStatusCode,
+  getRequestId,
+  setRequestId,
+  getResponseBody,
+  setResponseBody,
+  getResponseHeaders,
+  setResponseHeaders,
+  setResponseHeader,
+  respondJson,
+  createContextGetterSetter,
+};

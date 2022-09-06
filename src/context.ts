@@ -26,8 +26,6 @@ const getContextValue = <Value extends any>(key: Symbol) => {
 const [getRequestObject, setRequestObject] =
   createContextGetterSetter<http.IncomingMessage>(Symbol("request"));
 
-const [getResponseObject, setResponseObject] =
-  createContextGetterSetter<http.ServerResponse>(Symbol("response"));
 const [getStatusCode, setStatusCode] = createContextGetterSetter<number>(
   Symbol("responseStatusCode")
 );
@@ -83,8 +81,6 @@ export const context = {
   getContextValue,
   getRequestObject,
   setRequestObject,
-  getResponseObject,
-  setResponseObject,
   getStatusCode,
   setStatusCode,
   getRequestId,

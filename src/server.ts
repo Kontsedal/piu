@@ -38,7 +38,6 @@ function handleRequest({
   context.runWithContext(async () => {
     context.setRequestId(crypto.randomUUID());
     context.setRequestObject(req);
-    context.setResponseObject(res);
     try {
       try {
         await executeMiddlewares(middlewares);

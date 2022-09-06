@@ -1,59 +1,65 @@
 import { AsyncLocalStorage } from "async_hooks";
 import * as http from "http";
+import { bodyParsers } from "./body-parsers";
 
-export const asyncStorage = new AsyncLocalStorage<Map<Symbol, unknown>>();
+const asyncStorage = new AsyncLocalStorage<Map<Symbol, unknown>>();
 
-export const runWithContext = (fn: () => unknown) => {
+const runWithContext = (fn: () => unknown) => {
   const context = new Map();
   asyncStorage.run(context, fn);
 };
 
-export const getContext = () => {
+const getContext = () => {
   return asyncStorage.getStore();
 };
 
-export const setContextValue = (key: Symbol, value: unknown) => {
+const setContextValue = (key: Symbol, value: unknown) => {
   const context = getContext();
   context?.set(key, value);
 };
 
-export const getContextValue = <Value extends any>(key: Symbol) => {
+const getContextValue = <Value extends any>(key: Symbol) => {
   const context = getContext();
   return context?.get(key) as Value | void;
 };
 
-export const [getRequestObject, setRequestObject] =
+const [getRequestObject, setRequestObject] =
   createContextGetterSetter<http.IncomingMessage>(Symbol("request"));
 
-export const [getResponseObject, setResponseObject] =
+const [getResponseObject, setResponseObject] =
   createContextGetterSetter<http.ServerResponse>(Symbol("response"));
-export const [getStatusCode, setStatusCode] = createContextGetterSetter<number>(
+const [getStatusCode, setStatusCode] = createContextGetterSetter<number>(
   Symbol("responseStatusCode")
 );
-export const [getRequestId, setRequestId] = createContextGetterSetter<string>(
+const [getRequestId, setRequestId] = createContextGetterSetter<string>(
   Symbol("requestId")
 );
-export const [getResponseBody, setResponseBody] =
-  createContextGetterSetter<any>(Symbol("responseBody"));
-export const [getResponseHeaders, setResponseHeaders] =
-  createContextGetterSetter<Map<string, string | string[]>>(
-    Symbol("responseHeaders"),
-    new Map()
-  );
-export const setResponseHeader = (key: string, value: string | string[]) => {
+const [getResponseBody, setResponseBody] = createContextGetterSetter<any>(
+  Symbol("responseBody")
+);
+const [getResponseHeaders, setResponseHeaders] = createContextGetterSetter<
+  Map<string, string | string[]>
+>(Symbol("responseHeaders"), new Map());
+const setResponseHeader = (key: string, value: string | string[]) => {
   const headers = getResponseHeaders();
   headers?.set(key, value);
 };
 
-export const respondJson = (
-  body: Record<string, unknown>,
-  statusCode?: number
-) => {
+const respondJson = (body: Record<string, unknown>, statusCode?: number) => {
   setResponseBody(JSON.stringify(body));
   typeof statusCode == "number" && setStatusCode(statusCode);
   setResponseHeader("Content-Type", "application/json");
 };
-export function createContextGetterSetter<Value extends any>(
+
+const respondText = (
+  body: string | number | undefined,
+  statusCode?: number
+) => {
+  setResponseBody(body);
+  typeof statusCode == "number" && setStatusCode(statusCode);
+  setResponseHeader("Content-Type", "plain/text");
+};
+function createContextGetterSetter<Value extends any>(
   key: Symbol,
   defaultValue?: Value
 ) {
@@ -62,6 +68,14 @@ export function createContextGetterSetter<Value extends any>(
     (value: Value) => setContextValue(key, value) as Value,
   ] as const;
 }
+
+export const getRequestBodyJson = async () => {
+  return await bodyParsers.getJsonRequestBody(getRequestObject());
+};
+
+export const getRequestBodyText = async () => {
+  return await bodyParsers.getTextRequestBody(getRequestObject());
+};
 
 export const context = {
   runWithContext,
@@ -81,5 +95,10 @@ export const context = {
   setResponseHeaders,
   setResponseHeader,
   respondJson,
+  respondText,
   createContextGetterSetter,
+  requestBody: {
+    json: getRequestBodyJson,
+    text: getRequestBodyText,
+  },
 };

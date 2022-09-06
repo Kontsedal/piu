@@ -1,5 +1,5 @@
 import * as http from "http";
-import * as context from "../context";
+import { context } from "../context";
 import {
   createReadonlyProxy,
   createSuperProxy,

@@ -1,6 +1,7 @@
 import { createServer } from "../server";
+// @ts-ignore
 import bodyParser from "body-parser";
-import { respondJson, setResponseHeader } from "../context";
+import { context } from "../context";
 import request from "supertest";
 import cors from "cors";
 import { executeExpressMiddleware } from "../utils/expressMiddlewareExecutor";
@@ -9,10 +10,11 @@ describe("express middleware executor", () => {
   it("should support body parser express middleware", async () => {
     const server = createServer();
     server.use(async () => {
+      let i = bodyParser;
       const { requestChanges } = await executeExpressMiddleware(
         bodyParser.json()
       );
-      respondJson(requestChanges.body, 201);
+      context.respondJson(requestChanges.body, 201);
     });
     const response = await request(server.httpServer)
       .post("/")
@@ -24,12 +26,11 @@ describe("express middleware executor", () => {
   it("should support cors express middleware", async () => {
     const server = createServer();
     server.use(async () => {
-      const { requestChanges, responseChanges } =
-        await executeExpressMiddleware(cors());
+      const { responseChanges } = await executeExpressMiddleware(cors());
       responseChanges.calls?.setHeader.forEach(([key, value]) => {
-        setResponseHeader(key, value);
+        context.setResponseHeader(key, value);
       });
-      respondJson({ success: true }, 201);
+      context.respondJson({ success: true }, 201);
     });
     const response = await request(server.httpServer)
       .post("/")

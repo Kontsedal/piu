@@ -1,6 +1,6 @@
 import * as http from "http";
 import * as crypto from "crypto";
-import * as context from "./context";
+import { context } from "./context";
 
 export type Middleware = (next: () => unknown) => unknown;
 

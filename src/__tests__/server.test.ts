@@ -1,6 +1,6 @@
 import { createServer } from "../server";
 import request from "supertest";
-import { respondJson } from "../context";
+import { context } from "../context";
 
 describe("server", () => {
   it("should respond 404 with no middlewares", async () => {
@@ -14,7 +14,7 @@ describe("server", () => {
     const responseObj = { test: 1 };
     const server = createServer();
     server.use(() => {
-      respondJson(responseObj, 201);
+      context.respondJson(responseObj, 201);
     });
     const response = await request(server.httpServer).get("/").send();
     expect(response.statusCode).toBe(201);
@@ -36,7 +36,7 @@ describe("server", () => {
     const customError = { error: "Custom error" };
     const server = createServer({
       onError: (error) => {
-        respondJson({ error: "Custom error" }, 501);
+        context.respondJson({ error: "Custom error" }, 501);
       },
     });
     server.use(() => {
